@@ -1,7 +1,9 @@
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
+
 
 public class HotelBookingApp {
+
+
     static abstract class Room {
         protected String type;
         protected int beds;
@@ -14,6 +16,7 @@ public class HotelBookingApp {
             this.size = size;
             this.price = price;
         }
+
         public String getType() {
             return type;
         }
@@ -25,7 +28,6 @@ public class HotelBookingApp {
             System.out.println("Price per night: " + price);
         }
     }
-
 
     static class SingleRoom extends Room {
         public SingleRoom() {
@@ -44,7 +46,6 @@ public class HotelBookingApp {
             super("Suite Room", 3, 750, 5000.0);
         }
     }
-
 
 
     static class RoomInventory {
@@ -67,10 +68,34 @@ public class HotelBookingApp {
             availability.put(roomType, newCount);
         }
 
-        public void displayInventory() {
-            System.out.println("Current Room Inventory:");
-            for (Map.Entry<String, Integer> entry : availability.entrySet()) {
-                System.out.println(entry.getKey() + " Available: " + entry.getValue());
+        public Map<String, Integer> getAllAvailability() {
+            return availability;
+        }
+    }
+
+    static class SearchService {
+
+        private RoomInventory inventory;
+        private List<Room> rooms;
+
+        public SearchService(RoomInventory inventory, List<Room> rooms) {
+            this.inventory = inventory;
+            this.rooms = rooms;
+        }
+
+        public void searchAvailableRooms() {
+
+            System.out.println("Available Rooms:\n");
+
+            for (Room room : rooms) {
+
+                int available = inventory.getAvailability(room.getType());
+
+                if (available > 0) {
+                    room.displayDetails();
+                    System.out.println("Available: " + available);
+                    System.out.println();
+                }
             }
         }
     }
@@ -78,23 +103,17 @@ public class HotelBookingApp {
 
     public static void main(String[] args) {
 
-        System.out.println("Hotel Room Initialization\n");
+        System.out.println("Guest Room Search\n");
 
-        Room single = new SingleRoom();
-        Room doubleRoom = new DoubleRoom();
-        Room suite = new SuiteRoom();
+        List<Room> rooms = new ArrayList<>();
+        rooms.add(new SingleRoom());
+        rooms.add(new DoubleRoom());
+        rooms.add(new SuiteRoom());
 
         RoomInventory inventory = new RoomInventory();
 
-        single.displayDetails();
-        System.out.println("Available: " + inventory.getAvailability(single.getType()));
-        System.out.println();
+        SearchService searchService = new SearchService(inventory, rooms);
 
-        doubleRoom.displayDetails();
-        System.out.println("Available: " + inventory.getAvailability(doubleRoom.getType()));
-        System.out.println();
-
-        suite.displayDetails();
-        System.out.println("Available: " + inventory.getAvailability(suite.getType()));
+        searchService.searchAvailableRooms();
     }
 }
